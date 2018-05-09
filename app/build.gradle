@@ -53,9 +53,13 @@ dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     testCompile 'junit:junit:4.12'
     compile 'com.android.support:appcompat-v7:27.1.1'
-    compile files('libs/Android_Map_V3.0.20150831.jar')
+//    compile files('libs/Android_Map_V3.0.20150831.jar')
     compile files('libs/universal-image-loader-1.9.5.jar')
-    compile files('libs/AMap_Services_V2.4.0.jar')
-    compile files('libs/Android_2DMapApi_V2.4.1.jar')
-    compile files('libs/Android_Location_V1.3.2.jar')
+//    compile files('libs/AMap_Services_V2.4.0.jar')
+//    compile files('libs/Android_2DMapApi_V2.4.1.jar')
+//    compile files('libs/Android_Location_V1.3.2.jar')
+    compile 'org.xutils:xutils:3.5.0'
+    compile 'com.amap.api:navi-3dmap:latest.integration'//导航
+    compile 'com.amap.api:search:latest.integration'    //搜索
+    compile 'com.amap.api:location:latest.integration'  //定位
 }

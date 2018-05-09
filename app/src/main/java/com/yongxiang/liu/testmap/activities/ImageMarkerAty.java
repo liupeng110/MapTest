@@ -20,7 +20,7 @@ import com.yongxiang.liu.testmap.R;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
-import com.yongxiang.liu.testmap.custom.InfoPopupWindow;
+//import com.yongxiang.liu.testmap.custom.InfoPopupWindow;
 import com.yongxiang.liu.testmap.custom.RoundImageView;
 
 public class ImageMarkerAty extends Activity implements OnMarkerClickListener{
@@ -32,7 +32,7 @@ public class ImageMarkerAty extends Activity implements OnMarkerClickListener{
 	/**
 	 * 点击标记物弹出popWindow信息
 	 */
-	private InfoPopupWindow popWindow;
+//	private InfoPopupWindow popWindow;
 	/**
 	 * 展示popWindow布局
 	 */
@@ -64,7 +64,7 @@ public class ImageMarkerAty extends Activity implements OnMarkerClickListener{
 			final MarkerOptions mark = new MarkerOptions();
 			// mark.position(x);
 			mark.title("我现在的位置:");
-			
+
 			mark.draggable(true);
 			List<String> urlList = new ArrayList<String>();
 			urlList.add("http://img4.imgtn.bdimg.com/it/u=4110197539,3083480809&fm=23&gp=0.jpg");
@@ -110,9 +110,9 @@ public class ImageMarkerAty extends Activity implements OnMarkerClickListener{
 
 	@Override
 	public boolean onMarkerClick(Marker marker) {
-		if (popWindow != null) {// 先把原来的给隐藏起来
-			popWindow.dismiss();
-		}
+//		if (popWindow != null) {// 先把原来的给隐藏起来
+//			popWindow.dismiss();
+//		}
 		List<String> imgUrlList = new ArrayList<String>();
 		imgUrlList.add("http://img0.imgtn.bdimg.com/it/u=2491477770,1039059834&fm=23&gp=0.jpg");
 		imgUrlList.add("http://img0.imgtn.bdimg.com/it/u=3970267017,4100156947&fm=23&gp=0.jpg");
@@ -121,8 +121,8 @@ public class ImageMarkerAty extends Activity implements OnMarkerClickListener{
 		String markerId = marker.getId();
 		markerId = (String) markerId.subSequence(markerId.length()-1, markerId.length());
 		int id = Integer.valueOf(markerId);
-				popWindow = new InfoPopupWindow(this, imgUrlList.get(id-1));
-		popWindow.showAsDropDown(mpop);
+//	    popWindow = new InfoPopupWindow(this, imgUrlList.get(id-1));
+//		popWindow.showAsDropDown(mpop);
 		return false;
 	}
 
@@ -160,9 +160,9 @@ public class ImageMarkerAty extends Activity implements OnMarkerClickListener{
 	protected void onDestroy() {
 		super.onDestroy();
 		mapView.onDestroy();
-		if (popWindow != null) {// 隐藏popwindow
-			popWindow.dismiss();
-		}
+//		if (popWindow != null) {// 隐藏popwindow
+//			popWindow.dismiss();
+//		}
 	}
 
 }

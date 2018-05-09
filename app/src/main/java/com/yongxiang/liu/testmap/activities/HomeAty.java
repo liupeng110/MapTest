@@ -44,7 +44,7 @@ public class HomeAty extends Activity implements OnClickListener{
 			intent(ImageMarkerAty.class);
 			break;
 		case R.id.btn_marker_fixed:
-			intent(MarkerFixedAty.class);
+//			intent(MarkerFixedAty.class);
 			break;
 		case R.id.btn_point_aggregation:
 			intent(PointAggregationAty.class);
