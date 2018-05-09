@@ -6,6 +6,7 @@ import android.app.Activity;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageView;
@@ -21,59 +22,30 @@ import com.amap.api.maps.model.CameraPosition;
 import com.amap.api.maps.model.LatLng;
 import com.amap.api.maps.model.Marker;
 import com.amap.api.maps.model.MarkerOptions;
-import com.yongxiang.liu.testmap.BuildConfig;
 import com.yongxiang.liu.testmap.R;
 import com.yongxiang.liu.testmap.utils.ScreenUtils;
 
-//import org.xutils.*;
 
 public class PointAggregationAty extends Activity implements OnClickListener,
 		OnCameraChangeListener, OnMarkerClickListener {
-	/**  地图view  */
-	private MapView mapView;
-	/**  高德amap */
-	private AMap aMap;
+
+	private MapView mapView;//**  地图view  */
+	private AMap aMap;   	//***  高德amap */
 	private int screenHeight;// 屏幕高度(px)
 	private int screenWidth;// 屏幕宽度(px)
-
-	/**  定位  */
-//	private LocationManagerProxy aMapLocManager = null;
-	/** 所有的marker  */
-	private ArrayList<MarkerOptions> markerOptionsListall = new ArrayList<MarkerOptions>();
-	/**  视野内的marker  */
-	private ArrayList<MarkerOptions> markerOptionsListInView = new ArrayList<MarkerOptions>();
+	private ArrayList<MarkerOptions> markerOptionsListall = new ArrayList<MarkerOptions>();	//** 所有的marker  */
+	private ArrayList<MarkerOptions> markerOptionsListInView = new ArrayList<MarkerOptions>();//**  视野内的marker  */
 	private ImageView img_location;
-    Thread  thread;
-    Runnable runnable;
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
+	@Override protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_point_aggregation);
-//		org.xutils.x.Ext.init(getApplication());
-//		org.xutils.x.Ext.setDebug(BuildConfig.DEBUG);
 		initView();
 		initEvent();
 		DisplayMetrics dm = new DisplayMetrics();
 		getWindowManager().getDefaultDisplay().getMetrics(dm);
 		screenWidth = ScreenUtils.getScreenWidth(this);
 		screenHeight = ScreenUtils.getScreenHeight(this);
-
-		// 方法必须重写
-		mapView.onCreate(savedInstanceState);
-//		if (aMapLocManager == null) {
-			// 打开定位
-//			aMapLocManager = LocationManagerProxy .getInstance(PointAggregationAty.this);
-			/**
-			 * mAMapLocManager.setGpsEnable(false);//
-			 * 1.0.2版本新增方法，设置true表示混合定位中包含gps定位，false表示纯网络定位，默认是true Location
-			 * API定位采用GPS和网络混合定位方式 ，第一个参数是定位provider，第二个参数时间最短是2000毫秒
-			 * ，第三个参数距离间隔单位是米，第四个参数是定位监听者
-			 */
-//			aMapLocManager.requestLocationData(
-//					LocationProviderProxy.AMapNetwork, 2000, 10,
-//					PointAggregationAty.this);
-
-//		}
+		mapView.onCreate(savedInstanceState);// 方法必须重写
 
 		if (aMap == null) {
 			aMap = mapView.getMap();
@@ -87,110 +59,54 @@ public class PointAggregationAty extends Activity implements OnClickListener,
 		// 添加临时数据
 		initDatas();
 	}
-
-	private void initEvent() {
-		img_location.setOnClickListener(this);
-	}
-
 	private void initView() {
 		mapView = (MapView) findViewById(R.id.map);
 		img_location = (ImageView) findViewById(R.id.img_location);
 	}
+	private void initEvent() { img_location.setOnClickListener(this); }
 
-	private void initDatas() {
-		for(int i=0;i<1000;i++){
-//			runnable=new Runnable() {
-//				@Override public void run() {
-					Random r = new Random();
-					double lat = (290000 + r.nextInt(30000)) / 10000.0D;
-					double lng = (1120000 + r.nextInt(30000)) / 10000.0D;
-					addDate(lat,lng);
-				}
-//			};
-
-//		}
-
-
-//		thread=new Thread(runnable);
-//		thread.start();
-
+	private void initDatas() {//模拟1000条数据
+		for(int i=0;i<1000;i++) {
+			Random r = new Random();
+			double lat = (290000 + r.nextInt(30000)) / 10000.0D;
+			double lng = (1120000 + r.nextInt(30000)) / 10000.0D;
+			addDate(lat, lng);
+		}
 	}
 
 	// 添加临时数据
 	private void addDate(double latitude,double longitude) {
 		LatLng latLng = new LatLng(latitude, longitude);
-		markerOptionsListall.add(new MarkerOptions()
-				.position(latLng)
-				.icon(BitmapDescriptorFactory .defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
+		MarkerOptions markerOptions = new MarkerOptions().position(latLng)
+				.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
+		markerOptionsListall.add(markerOptions);
 	}
 
-	@Override
-	public boolean onMarkerClick(Marker arg0) {
-		// TODO marker点击监听
+	@Override public boolean onMarkerClick(Marker marker) {
+		Log.e("点击mark",""+marker.getId());
+		Log.e("点击mark",""+marker.getTitle());
+		Log.e("点击mark",""+marker.getObject());
 		return false;
 	}
 
-	@Override
-	public void onCameraChange(CameraPosition arg0) {
-		// TODO 地图改变时的监听
+	@Override public void onCameraChange(CameraPosition cameraPosition) { } //地图改变时
+	@Override public void onCameraChangeFinish(CameraPosition cameraPosition) { resetMarks(); }// 地图改变完之后的监听
 
-	}
+	@Override protected void onSaveInstanceState(Bundle outState) { super.onSaveInstanceState(outState); mapView.onSaveInstanceState(outState); }//必须重写
+	@Override protected void onResume() { super.onResume(); mapView.onResume(); }
+	@Override protected void onDestroy() { super.onDestroy(); mapView.onDestroy(); }
 
-	@Override
-	public void onCameraChangeFinish(CameraPosition arg0) {// 地图改变完之后的监听
-		resetMarks();
-	}
+	@Override protected void onPause() { super.onPause(); mapView.onPause(); }
 
-	/**
-	 * 方法必须重写
-	 */
-	@Override
-	protected void onSaveInstanceState(Bundle outState) {
-		super.onSaveInstanceState(outState);
-		mapView.onSaveInstanceState(outState);
-	}
-
-	/**
-	 * 方法必须重写
-	 */
-	@Override
-	protected void onResume() {
-		super.onResume();
-		mapView.onResume();
-	}
-
-	/**
-	 * 方法必须重写
-	 */
-	@Override
-	protected void onDestroy() {
-		super.onDestroy();
-		mapView.onDestroy();
-
-	}
-
-	/**
-	 * 方法必须重写
-	 */
-	@Override
-	protected void onPause() {
-		super.onPause();
-		mapView.onPause();
-	}
-
-	/**
-	 * 获取视野内的marker 根据聚合算法合成自定义的marker 显示视野内的marker
-	 */
+	/** 获取视野内的marker 根据聚合算法合成自定义的marker 显示视野内的marker */
 	private void resetMarks() {
-		// 开始刷新
-		Projection projection = aMap.getProjection();
+		Projection projection = aMap.getProjection();// 开始刷新
 		Point p = null;
 		markerOptionsListInView.clear();
-		// 获取在当前视野内的marker;提高效率
-		for (MarkerOptions mp : markerOptionsListall) {
+		for (MarkerOptions mp : markerOptionsListall) {// 获取在当前视野内的marker;提高效率
 			p = projection.toScreenLocation(mp.getPosition());
-			if (p.x < 0 || p.y < 0 || p.x > screenWidth || p.y > screenHeight) {
-				// 不添加到计算的列表中
+			if (p.x < 0 || p.y < 0 || p.x > screenWidth || p.y > screenHeight) {// 不添加到计算的列表中
+
 			} else {
 				markerOptionsListInView.add(mp);
 			}
@@ -213,8 +129,7 @@ public class PointAggregationAty extends Activity implements OnClickListener,
 				}
 				// 如果没在任何范围内，自己单独形成一个自定义marker。在和后面的marker进行比较
 				if (!isIn) {
-					clustersMarker.add(new MarkerImageView(
-							PointAggregationAty.this, mp, projection, 80));// 80=相距多少才聚合
+					clustersMarker.add(new MarkerImageView(PointAggregationAty.this, mp, projection, 80));// 80=相距多少才聚合
 				}
 			}
 		}
@@ -229,15 +144,11 @@ public class PointAggregationAty extends Activity implements OnClickListener,
 		}
 	}
 
-
-
-	@SuppressWarnings("deprecation")
 	@Override
 	public void onClick(View v) {
 		switch (v.getId()) {
 			case R.id.img_location:
 				// 先销毁定位
-
 				break;
 		}
 	}
