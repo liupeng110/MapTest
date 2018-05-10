@@ -3,27 +3,27 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+
+
+
     <ImageView
         android:id="@+id/view_gaode_img_portrait"
-        android:layout_width="30dp"
+        android:layout_width="35dp"
         android:layout_height="35dp"
-        android:background="@drawable/location"
-        android:paddingLeft="4dp"
-        android:paddingRight="4dp" />
+        android:background="@drawable/yuan"   />
 
     <TextView
         android:id="@+id/view_gaode_txt_num"
-        android:layout_width="30dp"
-        android:layout_height="15dp"
-        android:layout_marginTop="2dp"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
         android:gravity="center"
+        android:textColor="#000000"
         android:textSize="12dp"
-        android:textColor="#FFFFFF"
         />
 
     <ImageView
         android:layout_width="30dp"
-        android:layout_height="35dp"
+        android:layout_height="30dp"
         android:layout_below="@+id/view_gaode_img_portrait" />
 
 </RelativeLayout>

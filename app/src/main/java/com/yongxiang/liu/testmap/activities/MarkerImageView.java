@@ -25,13 +25,13 @@ public class MarkerImageView {
 	private LatLngBounds bounds;// 创建区域
 
 	/** 头像加载完监听*/
-	public MarkerImageView(Context context, MarkerOptions firstMarkers,  Projection projection, int gridSize) {
+	public MarkerImageView(Context context, MarkerOptions firstMarkers,  Projection projection, int gridSize,int num) {
 		this.context = context;
 		options = new MarkerOptions();
 		Point point = projection.toScreenLocation(firstMarkers.getPosition());
 		Point southwestPoint = new Point(point.x - gridSize, point.y + gridSize);//范围类
 		Point northeastPoint = new Point(point.x + gridSize, point.y - gridSize);//范围类
-		
+		options.title(firstMarkers.getTitle());
 		bounds = new LatLngBounds(projection.fromScreenLocation(southwestPoint), projection.fromScreenLocation(northeastPoint));
 		options.anchor(0.5f, 0.5f).title(firstMarkers.getTitle()).position(firstMarkers.getPosition())//设置初始化marker属性
 				.icon(firstMarkers.getIcon()) .snippet(firstMarkers.getSnippet());
@@ -65,45 +65,85 @@ public class MarkerImageView {
 		int size = includeMarkers.size();
 		double lat = 0.0;
 		double lng = 0.0;
-		// 一个的时候
-		if (size == 1) {//设置marker单个属性
-			// 设置marker位置
-			options.position(new LatLng( includeMarkers.get(0).getPosition().latitude, includeMarkers.get(0).getPosition().longitude));
-			options.title("聚合点");
-			options.icon(BitmapDescriptorFactory .fromBitmap(getViewBitmap(getView(size))));
-		} else {// 聚合的时候
-			//设置marker聚合属性
-			for (MarkerOptions op : includeMarkers) {
+		if (size == 1) {//一个,设置marker单个属性
+			options.position(new LatLng( includeMarkers.get(0).getPosition().latitude, includeMarkers.get(0).getPosition().longitude));// 设置marker位置
+			options.title(includeMarkers.get(0).getTitle());//单个
+//			options.icon(BitmapDescriptorFactory .fromBitmap(getViewBitmap(getView(size))));
+
+		    int type =0;//新添加 区分type
+			String type_tmp=includeMarkers.get(0).getTitle();
+//			type_tmp=type_tmp.substring(type_tmp.indexOf(",")+1,type_tmp.length());
+			type_tmp=type_tmp.substring(type_tmp.indexOf(",")+1,type_tmp.indexOf("."));//类型
+			type=Integer.parseInt(type_tmp);
+
+			String type_tmp2=includeMarkers.get(0).getTitle();
+			type_tmp2=type_tmp2.substring(0,type_tmp2.indexOf(","));
+			size=Integer.parseInt(type_tmp2);
+
+			options.icon(BitmapDescriptorFactory.fromBitmap(getViewBitmap(getView(size,type))));
+		} else {// 聚合时
+			int sizes=0;
+			for (MarkerOptions op : includeMarkers) {//设置marker聚合属性
 				lat += op.getPosition().latitude;
 				lng += op.getPosition().longitude;
+				String type_tmp2=op.getTitle();
+                type_tmp2=type_tmp2.substring(0,type_tmp2.indexOf(","));
+//				type_tmp2=type_tmp2.substring(type_tmp2.indexOf(".")+1,type_tmp2.length());
+			    int size2=Integer.parseInt(type_tmp2);
+				sizes+=size2;
 			}
-			// 设置marker的位置为中心位置为聚集点的平均位置
-			options.position(new LatLng(lat / size, lng / size));
-			options.title("聚合点");
-			options.icon(BitmapDescriptorFactory.fromBitmap(getViewBitmap(getView(size))));
+			options.position(new LatLng(lat / size, lng / size));//设置marker的位置为中心位置为聚集点的平均位置
+			options.title("d");    //多个
+			options.icon(BitmapDescriptorFactory.fromBitmap(getViewBitmap(getView(sizes))));
 		}
 	}
 
-	/**
-	 * marker试图
-	 */
+	/**  marker视图 多个 */
 	public View getView(int num) {
-		View view = LayoutInflater.from(context).inflate( R.layout.view_gaode_img, null);
-		/** 数量 */
-		TextView txt_num = (TextView) view .findViewById(R.id.view_gaode_txt_num);
-		/** 头像 */
-		ImageView img_portrait = (ImageView) view .findViewById(R.id.view_gaode_img_portrait);
+		View view = LayoutInflater.from(context).inflate( R.layout.view_gaode_imgs, null);
+		TextView txt_num = (TextView) view .findViewById(R.id.view_gaode_txt_num);//数字
+		txt_num.setTextColor(context.getResources().getColor(R.color.black));
+		ImageView img_portrait = (ImageView) view .findViewById(R.id.view_gaode_img_portrait);//img
 
 		img_portrait.setPadding(8, 8, 8, 12);
 		if (num > 1) {
 			txt_num.setText(num + "");
 		} else if (num == 1) {
 			txt_num.setText(num + "");
-			txt_num.setTextColor(context.getResources().getColor(R.color.black));
 			img_portrait.setBackgroundResource(R.drawable.green_pin);
 		}
 		return view;
 	}
+
+	//单个时 调用
+	public View getView(int num,int type) {
+		View view = LayoutInflater.from(context).inflate( R.layout.view_gaode_img, null);
+		TextView txt_num = (TextView) view .findViewById(R.id.view_gaode_txt_num);//数字
+		ImageView img_portrait = (ImageView) view .findViewById(R.id.view_gaode_img_portrait);//img
+
+		img_portrait.setPadding(8, 8, 8, 12);
+//		if (num > 1) {
+//			txt_num.setText(num + "");
+//		} else if (num == 1) {
+
+//		    txt_num.setTextSize(13);
+			txt_num.setText(num + "");
+			txt_num.setTextColor(context.getResources().getColor(R.color.black));
+		    if (type==0){
+//				img_portrait.setBackgroundResource(R.drawable.green_pin);
+				img_portrait.setBackgroundResource(R.drawable.ic_marker_fast);
+			}else if (type==1){
+				img_portrait.setBackgroundResource(R.drawable.ic_marker_slow);
+			}else if (type==2){
+				img_portrait.setBackgroundResource(R.drawable.ic_marker_mix);
+			}
+
+
+//			}
+		return view;
+	}
+
+
 
 	/** 把一个view转化成bitmap对象  */
 	public static Bitmap getViewBitmap(View view) {

@@ -10,11 +10,11 @@ import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageView;
+
 import com.amap.api.maps.AMap;
-import com.amap.api.maps.MapView;
-import com.amap.api.maps.AMap.OnCameraChangeListener;
-import com.amap.api.maps.AMap.OnMarkerClickListener;
 import com.amap.api.maps.AMapOptions;
+import com.amap.api.maps.CameraUpdateFactory;
+import com.amap.api.maps.MapView;
 import com.amap.api.maps.Projection;
 import com.amap.api.maps.UiSettings;
 import com.amap.api.maps.model.BitmapDescriptorFactory;
@@ -26,8 +26,7 @@ import com.yongxiang.liu.testmap.R;
 import com.yongxiang.liu.testmap.utils.ScreenUtils;
 
 
-public class PointAggregationAty extends Activity implements OnClickListener,
-		OnCameraChangeListener, OnMarkerClickListener {
+public class PointAggregationAty extends Activity implements OnClickListener, AMap.OnCameraChangeListener, AMap.OnMarkerClickListener {
 
 	private MapView mapView;//**  地图view  */
 	private AMap aMap;   	//***  高德amap */
@@ -39,12 +38,13 @@ public class PointAggregationAty extends Activity implements OnClickListener,
 	@Override protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_point_aggregation);
-		initView();
-		initEvent();
 		DisplayMetrics dm = new DisplayMetrics();
 		getWindowManager().getDefaultDisplay().getMetrics(dm);
 		screenWidth = ScreenUtils.getScreenWidth(this);
 		screenHeight = ScreenUtils.getScreenHeight(this);
+		mapView = (MapView) findViewById(R.id.map);
+		img_location = (ImageView) findViewById(R.id.img_location);
+		img_location.setOnClickListener(this);
 		mapView.onCreate(savedInstanceState);// 方法必须重写
 
 		if (aMap == null) {
@@ -59,45 +59,49 @@ public class PointAggregationAty extends Activity implements OnClickListener,
 		// 添加临时数据
 		initDatas();
 	}
-	private void initView() {
-		mapView = (MapView) findViewById(R.id.map);
-		img_location = (ImageView) findViewById(R.id.img_location);
-	}
-	private void initEvent() { img_location.setOnClickListener(this); }
 
 	private void initDatas() {//模拟1000条数据
 		for(int i=0;i<1000;i++) {
 			Random r = new Random();
 			double lat = (290000 + r.nextInt(30000)) / 10000.0D;
 			double lng = (1120000 + r.nextInt(30000)) / 10000.0D;
-			addDate(lat, lng);
+			addDate(lat, lng,i+","+i%3+"."+i*2);//桩子总数,类型，station id
 		}
 	}
 
 	// 添加临时数据
-	private void addDate(double latitude,double longitude) {
+	private void addDate(double latitude,double longitude,String str) {
 		LatLng latLng = new LatLng(latitude, longitude);
-		MarkerOptions markerOptions = new MarkerOptions().position(latLng)
-				.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
+		MarkerOptions markerOptions = new MarkerOptions().position(latLng) .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
+		markerOptions.title(str);
 		markerOptionsListall.add(markerOptions);
 	}
-
+             float  leavel =0;
 	@Override public boolean onMarkerClick(Marker marker) {
-		Log.e("点击mark",""+marker.getId());
-		Log.e("点击mark",""+marker.getTitle());
-		Log.e("点击mark",""+marker.getObject());
-		return false;
+		Log.e("点击mark","");
+		Log.e("点击mark",""+marker.getOptions().getTitle());
+
+		if (marker.getOptions().getTitle().equals("d")){
+			leavel=aMap.getCameraPosition().zoom;
+			leavel=leavel+3;
+			aMap.moveCamera(CameraUpdateFactory.zoomTo(leavel));
+            aMap.moveCamera(CameraUpdateFactory.changeLatLng(marker.getPosition()));
+		}else {
+			aMap.moveCamera(CameraUpdateFactory.zoomTo(15));
+			aMap.moveCamera(CameraUpdateFactory.changeLatLng(marker.getPosition()));
+		}
+
+		return true;
 	}
 
 	@Override public void onCameraChange(CameraPosition cameraPosition) { } //地图改变时
 	@Override public void onCameraChangeFinish(CameraPosition cameraPosition) { resetMarks(); }// 地图改变完之后的监听
-
 	@Override protected void onSaveInstanceState(Bundle outState) { super.onSaveInstanceState(outState); mapView.onSaveInstanceState(outState); }//必须重写
+	@Override protected void onPause() { super.onPause(); mapView.onPause(); }
 	@Override protected void onResume() { super.onResume(); mapView.onResume(); }
 	@Override protected void onDestroy() { super.onDestroy(); mapView.onDestroy(); }
 
-	@Override protected void onPause() { super.onPause(); mapView.onPause(); }
-
+	//聚合  入口点
 	/** 获取视野内的marker 根据聚合算法合成自定义的marker 显示视野内的marker */
 	private void resetMarks() {
 		Projection projection = aMap.getProjection();// 开始刷新
@@ -111,25 +115,22 @@ public class PointAggregationAty extends Activity implements OnClickListener,
 				markerOptionsListInView.add(mp);
 			}
 		}
-		// 自定义的聚合类MyMarkerCluster
+		//自定义的聚合类MyMarkerCluster
 		ArrayList<MarkerImageView> clustersMarker = new ArrayList<MarkerImageView>();
 		for (MarkerOptions mp : markerOptionsListInView) {
-			if (clustersMarker.size() == 0) {
-				// 添加一个新的自定义marker
-				clustersMarker.add(new MarkerImageView( PointAggregationAty.this, mp, projection, 80));// 80=相距多少才聚合
+			if (clustersMarker.size() == 0) {// 添加一个新的自定义marker
+				clustersMarker.add(new MarkerImageView( PointAggregationAty.this, mp, projection, 120,1));// 80=相距多少才聚合
 			} else {
 				boolean isIn = false;
 				for (MarkerImageView cluster : clustersMarker) {
 					// 判断当前的marker是否在前面marker的聚合范围内 并且每个marker只会聚合一次。
 					if (cluster.getBounds().contains(mp.getPosition())) {
-						cluster.addMarker(mp);
-						isIn = true;
-						break;
+						cluster.addMarker(mp); isIn = true; break;
 					}
 				}
 				// 如果没在任何范围内，自己单独形成一个自定义marker。在和后面的marker进行比较
 				if (!isIn) {
-					clustersMarker.add(new MarkerImageView(PointAggregationAty.this, mp, projection, 80));// 80=相距多少才聚合
+					clustersMarker.add(new MarkerImageView(PointAggregationAty.this, mp, projection, 120,clustersMarker.size()));// 80=相距多少才聚合
 				}
 			}
 		}
@@ -140,7 +141,8 @@ public class PointAggregationAty extends Activity implements OnClickListener,
 		aMap.clear();
 		// 重新添加 marker
 		for (MarkerImageView cluster : clustersMarker) {
-			aMap.addMarker(cluster.getOptions());
+		Marker marker=aMap.addMarker(cluster.getOptions());
+		marker.setTitle(cluster.getOptions().getTitle());
 		}
 	}
 

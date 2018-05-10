@@ -62,4 +62,6 @@ dependencies {
     compile 'com.amap.api:navi-3dmap:latest.integration'//导航
     compile 'com.amap.api:search:latest.integration'    //搜索
     compile 'com.amap.api:location:latest.integration'  //定位
+
+    compile 'com.github.thinkcool:circletextimageview:1.0.20151218'
 }
