@@ -43,7 +43,7 @@ public class PointAggregationAty extends Activity implements OnClickListener, AM
 		screenWidth = ScreenUtils.getScreenWidth(this);
 		screenHeight = ScreenUtils.getScreenHeight(this);
 		mapView = (MapView) findViewById(R.id.map);
-		img_location = (ImageView) findViewById(R.id.img_location);
+//		img_location = (ImageView) findViewById(R.id.img_location);
 		img_location.setOnClickListener(this);
 		mapView.onCreate(savedInstanceState);// 方法必须重写
 
@@ -149,9 +149,9 @@ public class PointAggregationAty extends Activity implements OnClickListener, AM
 	@Override
 	public void onClick(View v) {
 		switch (v.getId()) {
-			case R.id.img_location:
+//			case R.id.img_location:
 				// 先销毁定位
-				break;
+//				break;
 		}
 	}
 
